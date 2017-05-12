@@ -1,0 +1,4 @@
+(defstruct number 
+  number)
+
+(make-number :number 1)
