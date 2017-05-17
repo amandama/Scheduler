@@ -1,0 +1,293 @@
+
+==============================================================
+Starting image `alisp'
+  with no arguments
+  in directory `/home/amma/cs365/amma_Project/'
+  on machine `localhost'.
+
+International Allegro CL Enterprise Edition
+8.1 [Linux (x86)] (Jul 17, 2008 11:39)
+Copyright (C) 1985-2007, Franz Inc., Oakland, CA, USA.  All Rights Reserved.
+
+This development copy of Allegro CL is licensed to:
+   [TC17501] Vassar College
+
+;; Optimization settings: safety 1, space 1, speed 1, debug 2.
+;; For a complete description of all compiler switches given the current optimization settings evaluate (EXPLAIN-COMPILER-SETTINGS).
+CL-USER(1): ;; Setting (stream-external-format *terminal-io*) to :emacs-mule.
+CL-USER(2): :cl class-defns.lisp
+; Fast loading /home/amma/cs365/amma_Project/class-defns.fasl
+CL-USER(3): :cl scheduler.lisp
+; Fast loading /home/amma/cs365/amma_Project/scheduler.fasl
+CL-USER(4): (tester)
+Arbitary schedule with max 3 classes a semester
+Schedule: 1
+==============================================================
+Semester 1:
+cs101 - Computer Science I: Problem-Solving and Abstraction
+free
+free
+free
+free
+Semester 2:
+cs102 - Computer Science II: Data Structures and Algorithms
+cs145 - Foundations of Computer Science
+free
+free
+free
+Semester 3:
+cs203 - Computer Science III: Software Design
+cs224 - Computer Organization
+cs240 - Language Theory and Computation
+free
+free
+Semester 4:
+cs241 - Analysis of Algorithms
+cs250 - Modeling, Simulation and Analysis
+cs331 - Compilers
+free
+free
+Semester 5:
+cs334 - Operating Systems
+cs378 - Graphics
+free
+free
+free
+Semester 6:
+free
+free
+free
+free
+free
+Semester 7:
+cs395- Computer Animation: Art, Science and Criticism
+free
+free
+free
+free
+Semester 8:
+free
+free
+free
+free
+free
+
+
+
+Two schedules that have OS in them
+Schedule: 1
+==============================================================
+Semester 1:
+cs101 - Computer Science I: Problem-Solving and Abstraction
+free
+free
+free
+free
+Semester 2:
+cs102 - Computer Science II: Data Structures and Algorithms
+cs145 - Foundations of Computer Science
+free
+free
+free
+Semester 3:
+cs203 - Computer Science III: Software Design
+cs224 - Computer Organization
+free
+free
+free
+Semester 4:
+cs240 - Language Theory and Computation
+cs241 - Analysis of Algorithms
+free
+free
+free
+Semester 5:
+cs250 - Modeling, Simulation and Analysis
+cs334 - Operating Systems
+free
+free
+free
+Semester 6:
+cs331 - Compilers
+free
+free
+free
+free
+Semester 7:
+cs377- Parallel Programming
+cs395- Computer Animation: Art, Science and Criticism
+free
+free
+free
+Semester 8:
+free
+free
+free
+free
+free
+
+
+
+Schedule: 2
+==============================================================
+Semester 1:
+cs101 - Computer Science I: Problem-Solving and Abstraction
+free
+free
+free
+free
+Semester 2:
+cs102 - Computer Science II: Data Structures and Algorithms
+cs145 - Foundations of Computer Science
+free
+free
+free
+Semester 3:
+cs203 - Computer Science III: Software Design
+cs224 - Computer Organization
+free
+free
+free
+Semester 4:
+cs240 - Language Theory and Computation
+cs241 - Analysis of Algorithms
+free
+free
+free
+Semester 5:
+cs250 - Modeling, Simulation and Analysis
+cs334 - Operating Systems
+free
+free
+free
+Semester 6:
+cs331 - Compilers
+cs366 - Computational Linguistics
+free
+free
+free
+Semester 7:
+cs395- Computer Animation: Art, Science and Criticism
+free
+free
+free
+free
+Semester 8:
+free
+free
+free
+free
+free
+
+
+
+Two schedules that have Game Design
+Schedule: 1
+==============================================================
+Semester 1:
+cs101 - Computer Science I: Problem-Solving and Abstraction
+free
+free
+free
+free
+Semester 2:
+cs102 - Computer Science II: Data Structures and Algorithms
+cs145 - Foundations of Computer Science
+free
+free
+free
+Semester 3:
+cs203 - Computer Science III: Software Design
+cs224 - Computer Organization
+free
+free
+free
+Semester 4:
+cs240 - Language Theory and Computation
+cs241 - Analysis of Algorithms
+free
+free
+free
+Semester 5:
+cs334 - Operating Systems
+cs376 - Computer Games: Design, Production and Critique
+free
+free
+free
+Semester 6:
+cs245 - Declarative Programming Models
+cs331 - Compilers
+free
+free
+free
+Semester 7:
+cs377- Parallel Programming
+free
+free
+free
+free
+Semester 8:
+free
+free
+free
+free
+free
+
+
+
+Schedule that include AI and Networks
+Schedule: 1
+==============================================================
+Semester 1:
+cs101 - Computer Science I: Problem-Solving and Abstraction
+free
+free
+free
+free
+Semester 2:
+cs102 - Computer Science II: Data Structures and Algorithms
+cs145 - Foundations of Computer Science
+free
+free
+free
+Semester 3:
+cs203 - Computer Science III: Software Design
+cs224 - Computer Organization
+free
+free
+free
+Semester 4:
+cs240 - Language Theory and Computation
+cs241 - Analysis of Algorithms
+free
+free
+free
+Semester 5:
+cs334 - Operating Systems
+cs375 - Networks
+free
+free
+free
+Semester 6:
+cs245 - Declarative Programming Models
+cs331 - Compilers
+free
+free
+free
+Semester 7:
+free
+free
+free
+free
+free
+Semester 8:
+cs365 - Artificial Intelligence
+free
+free
+free
+free
+
+
+
+NIL
+CL-USER(5): 

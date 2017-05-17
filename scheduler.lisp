@@ -4,15 +4,6 @@
 ;; Amanda Ma
 ;; =========================================================
 ;; =========================================================
-;; 
-;; Holds all the functions to create a schedule 
-;; 
-;; LIST-OF-SCHEDULES - returns a list of random schedules 
-;; SINGLE-SCHEDULE - returns a single schedule
-;; CHECK-300 - checks if a schedule has required numbers of 300s 
-;; CHECK-CLUSTERS - checks if a schedule satifies cluster requirements 
-
-
 
 
 
@@ -28,7 +19,7 @@
 ;;        list-of-indexes - a list of indexes 
 ;; Output: a list where each index i holds 
 ;;         list-of-classes[list-of-indexes[i]] 
-(defun single-schedule (major list-of-indexes)
+(defun single-schedule (major list-of-indexes course-pref)
   (let* ((non-req-classes (major-non-req-courses major)) 
 	 (req-classes (major-req-courses major))
 	 (schedule-length (length list-of-indexes))
@@ -45,10 +36,17 @@
     (setf schedule (concatenate 'array req-classes schedule))
     
     ;; check the schedule to see if it satifies basic constraints
-    ;; return nil if it does not 
-    (if (and (check-300 major schedule)
-	     (check-clusters major schedule))
-	(return-from single-schedule schedule))
+    ;; return nil if it does not, if it does, return the sorted version  
+    (let (;; sort-by-level
+	  ;; -----------------------------------------
+	  ;; Input: n, a course
+	  ;; Output: the difficultly of that course 
+	  (sort-by-level (lambda (n)
+			   (course-difficulty n))))
+      (if (and (check-300 major schedule)
+	       (check-clusters major schedule)
+	       (check-course-pref schedule course-pref))
+	  (return-from single-schedule (sort schedule #'< :key sort-by-level))))
     
     nil))
     
@@ -60,7 +58,7 @@
 ;;         satisfy the major requirements withouth regards 
 ;;         to scheduling or preference 
 
-(defun list-of-schedules (major)
+(defun list-of-schedules (major course-pref)
   (let*
        ;; Number of classes in the major  
       ((num-total-classes (major-num-req-course major))
@@ -77,7 +75,7 @@
     (dotimes (i numclasses)
       (setf (aref schedule-index i) i))
     ;; Get the initial schedule 
-    (setf single-sched (single-schedule major schedule-index)) 
+    (setf single-sched (single-schedule major schedule-index course-pref)) 
     
     (while T
       ;; Will always have a schedule if reaching here, so
@@ -114,7 +112,7 @@
 	  (incf j))
 	
 	;; then set the schedule to be the new schedule  
-	(setf single-sched (single-schedule major schedule-index)))))) 
+	(setf single-sched (single-schedule major schedule-index course-pref)))))) 
     
     
 ;; check-300 
@@ -164,7 +162,21 @@
     T))
 
 
-
+;; check-course-pref 
+;; -------------------------------------------------------- 
+;; Input: schedule - a possible schedule 
+;;        course-pref - a vector of course preferences 
+;; Output: T if the schedule satisfies the course-preferences
+;;         Nil if it does not 
+(defun check-course-pref (schedule course-pref)
+  (dotimes (i (length course-pref))
+    ;; If a course preference is not in the schedule  
+    (if (null (find (svref course-pref i) schedule :test #'equal))
+	;; return nil 
+	(return-from check-course-pref nil)))
+  ;; If all of them are in the schedule, return T
+  T)
+    
 
 
 
@@ -184,6 +196,7 @@
 ;; Printing the schedule out 
 (defun show-schedule (state str depth)
   (declare (ignore depth))
+
   (let ((sched (sem-schedule-schedule state)))
     ;; For each semester 
     (dotimes (i 8)
@@ -257,7 +270,7 @@
   class-var 
   ;; the values: times the class is offered 
   sem-times-val
-  ;; the constraint for number of classes
+  ;; the constraint for number of classes per semester 
   num-classes-const
   ;; the depth of the schedule so far
   depth 
@@ -279,23 +292,44 @@
     (setf (sched-struct-major initial-struct) major)
     initial-struct))
 
-(defun copy-sched-struct (s)
+
+(defun sched-struct-copy (s)
   (let ((copy-struct (make-sched-struct))
-	(schedule (sched-struct-schedule s))
-	(class-var (sched-struct-class-var s)) 
-	(sem-times-val (sched-struct-sem-times-val s))
+	(schedule (make-sem-schedule))
+	(class-var (copy-seq (sched-struct-class-var s))) 
+	(sem-times-val (copy-seq (sched-struct-sem-times-val s)))
 	(num-classes-const (sched-struct-num-classes-const s))
 	(depth (sched-struct-depth s))
 	(major (sched-struct-major s)))
+
+    
+    (dotimes (i 8)
+      (dotimes (j 5)
+	(setf (aref (sem-schedule-schedule schedule) i j)
+	  (aref (sem-schedule-schedule (sched-struct-schedule s)) i j))))
     (setf (sched-struct-schedule copy-struct) schedule)
+    
+    
+    (dotimes (i (length class-var))
+      (setf (aref class-var i)
+	(aref (sched-struct-class-var s) i)))
     (setf (sched-struct-class-var copy-struct) class-var)
+    
+    
+    (dotimes (i (length sem-times-val))
+      (setf (aref sem-times-val i)
+	(copy-seq (aref (sched-struct-sem-times-val s) i))))
     (setf (sched-struct-sem-times-val copy-struct) sem-times-val)
+    
+    
     (setf (sched-struct-num-classes-const copy-struct) num-classes-const)
     (setf (sched-struct-depth copy-struct) depth)
     (setf (sched-struct-major copy-struct) major)
     copy-struct))
 	 
-			
+		       
+
+
 
 ;; solve-schedule
 ;; -------------------------------------------------------- 
@@ -305,10 +339,11 @@
 (defun solve-schedule (s)
   (cond 
    ;; Case 1: We have a full schedule 
+
    ((complete-sched? s)
     ;; return the schedule 
     s)
-   
+ 
    ;; Case 2: Still trying to get a schedule 
    (t
     ;; Get the class that we change, this is inherently in order 
@@ -325,20 +360,19 @@
       (if (null times)
 	  (return-from solve-schedule nil))
       
-      
       ;; If there are values left in the domain, go through all of them
       ;; recursively 
       (dotimes (i (length times))
+	
 	;; create a child schedule with the change 
 	(let ((child-s (do-move s class (svref times i))))
-	  
 	  ;; reduce the domains 
-	  ;; if the child-s is not valid 
+	  ;; if the child-s is not valid  
 	  (if (null child-s)
 	      ;; return nil
 	      (return-from solve-schedule nil)
 	    ;; if it is, reduce the domains 
-	    (reduce-domains! child-s))
+	    (reduce-domains! child-s class (svref times i)))
 	  
 	  ;; Recursive call to fill in the rest of the variables 
 	  (let ((child-results (solve-schedule child-s)))
@@ -357,9 +391,9 @@
 ;; Output: a boolean seeing if the schedule is complete based 
 ;;         on the major requirements for number of courses 
 (defun complete-sched? (s)
-  (let ((num-major-courses (major-num-req-course (sched-struct-depth s))))
+  (let ((num-major-courses (major-num-req-course (sched-struct-major s))))
     ;; If the number of courses assigned to a schedule is as many
-    ;; as what it required to complete the major, then the schedules is complete 
+    ;; as what it required to complete the major, then the schedules is complete
     (= (sched-struct-depth s) num-major-courses)))
 
 
@@ -371,20 +405,23 @@
 ;; Output: a new sched-struct with the class inserted into the semester 
 (defun do-move (s class sem-index)
   (let* (;; create a copy of the schedule struct 
-	 (child-s (copy-sched-struct s))
+	 (child-s (sched-struct-copy s))
 	 ;; gets the index of where to put the class within the semester
 	 (in-sem-index (schedule-safe class
-				      (sched-struct-schedule s)
+				      (sched-struct-schedule child-s)
 				      sem-index)))
-    
+
     (cond
      ;; If the move is not possible, return nil 
-     ((null in-sem-index)
-      (format t "Move not possible - shouldn't get here!"))
+     ((null in-sem-index) nil)
+      ;;(format t "Move not possible - shouldn't get here!"))
      ;; Else 
-     (t 
+     (t
       ;; puts the class correctly in the right semester 
-      (setf (aref (sched-struct-schedule child-s) sem-index in-sem-index) class)
+      (setf (aref (sem-schedule-schedule (sched-struct-schedule child-s)) 
+		  sem-index 
+		  in-sem-index) 
+	class)     
       ;; increase the depth because we've added a class 
       (incf (sched-struct-depth child-s))
       ;; return the child node 
@@ -396,7 +433,92 @@
 ;; --------------------------------------------------------   
 ;; Input: s, a sched-struct 
 ;; Output: s, destuctively modified to have consistent domains 
-(defun reduce-domains! (s))
+(defun reduce-domains! (s class time)
+  (let ((list-of-classes (sched-struct-class-var s))
+	(sched (sem-schedule-schedule (sched-struct-schedule s)))
+	(max-classes (sched-struct-num-classes-const s)))
   
   
+    ;; First, eliminate course offerings for courses that are offered 
+    ;; before the pre-req is takes
+    (dotimes (i (length list-of-classes))
+      (let ((time-veck (aref (sched-struct-sem-times-val s) i))
+	    (pre-req (course-pre-reqs (aref list-of-classes i))))
+	;; if the class is in the pre-requisite 
+	(cond 
+	 ;; If the course has the class as the pre-req 
+	 ((find class pre-req :test #'equal)
+	  ;; remove the times that are offered before
+	  (dotimes (j (length time-veck))
+	    (cond 
+	     ;; if offered before, no longer valid, so set to nil
+	     ((<= (svref time-veck j) time)
+	      (setf (svref time-veck j) 999))))
+	  ;; remove all the nils 
+	  (setf time-veck (remove 999 time-veck))
+	  ;; set the new domain
+	  (setf (aref (sched-struct-sem-times-val s) i) time-veck)))))
+	  
+    ;; Second is to check that the max number of courses per semester
+    ;; constraint is met 
+    
+    ;; If there are is a class at the max number of classes 
+    (cond 
+     ((aref sched time (- max-classes 1))
+      ;; Must remove that semester from all other domains
+      ;; So for all time vectors 
+      (dotimes (i (length (sched-struct-sem-times-val s)))
+	;; if the class is offered at that time
+	(if (find time (aref (sched-struct-sem-times-val s) i))
+	    ;; set the time vector to be the removal of that time 
+	    (setf (aref (sched-struct-sem-times-val s) i)
+	      (remove time (aref (sched-struct-sem-times-val s) i)))))))
+    s))
   
+
+
+;; solve-sched-wrapper 
+(defun solve-sched-wrapper (major classes-per-sem course-pref num-prosp-sched)
+  (let* ((list-of-classes (list-of-schedules cs-major course-pref))
+	 (times (min (length list-of-classes) num-prosp-sched)))
+    (dotimes (i (length list-of-classes))
+      
+      (if (= 0 times)
+	  ;; we have the number of schedules we want 
+	  (return-from solve-sched-wrapper))
+      
+      (let* ((sched (init-sched-struct (nth i list-of-classes)
+				      classes-per-sem
+				      major))
+	     (schedFinal (solve-schedule sched)))
+	
+	(cond 
+	 (schedFinal
+	  (decf times)
+	  (format t "Schedule: ~A~%" (abs (- times num-prosp-sched)))
+	  (format t "==============================================================~%") 
+	  (format t "~A~%~%~%" (sched-struct-schedule schedFinal))))))))
+	
+     
+	
+
+
+;; ===========================================================  
+;; ===========================================================  
+;;  TESTING
+;; ===========================================================  
+;; ===========================================================  
+
+(defun tester ()
+  (format t "Arbitary schedule with max 3 classes a semester~%")
+  (solve-sched-wrapper cs-major 3 nil 1)
+  
+  (format t "Two schedules that have OS in them~%")
+  (solve-sched-wrapper cs-major 2 (vector CS334) 2)
+
+  (format t "Two schedules that have Game Design~%")
+  (solve-sched-wrapper cs-major 2 (vector CS376) 1)
+  
+  (format t "Schedule that include AI and Networks~%")
+  (solve-sched-wrapper cs-major 2 (vector CS365 CS375) 1) 
+  )
