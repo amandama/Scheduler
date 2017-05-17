@@ -10,11 +10,16 @@
 
 
 
-(defstruct course 
+(defstruct (course (:print-function show-classes)) 
   name        ;; name of the class 
   time        ;; array of each semester the class is offered 
   pre-reqs    ;; vector of classes that are prerequisites to this class 
   difficulty) ;; either 100, 200, or 300 
+
+(defun show-classes (state str depth)
+  (declare (ignore depth))
+  (format str "~A~%" (course-name state)))
+
 
 (defstruct major
   name            ;; the name of a major  
@@ -27,15 +32,17 @@
                   ;; (students have to take at least one class in each cluster) 
 
 
+
+
 ;; Creating numerical values for each semester 
-(defconstant f13 1) ;; fall 2013 
-(defconstant s14 2) ;; spring 2014
-(defconstant f14 3) ;; fall 2014 
-(defconstant s15 4) ;; spring 2015 
-(defconstant f15 5) ;; fall 2015 
-(defconstant s16 6) ;; spring 2016
-(defconstant f16 7) ;; fall 2016 
-(defconstant s17 8) ;; spring 2017
+(defconstant f13 0) ;; fall 2013 
+(defconstant s14 1) ;; spring 2014
+(defconstant f14 2) ;; fall 2014 
+(defconstant s15 3) ;; spring 2015 
+(defconstant f15 4) ;; fall 2015 
+(defconstant s16 5) ;; spring 2016
+(defconstant f16 6) ;; fall 2016 
+(defconstant s17 7) ;; spring 2017
 
 
 (defconstant 100-level 100)
@@ -49,134 +56,133 @@
 ;; ============================================================================
 ;; The classes offered by the computer science department 
 
-
-(defparameter CS101 
+(defconstant CS101 
     (make-course :name "cs101 - Computer Science I: Problem-Solving and Abstraction"
-		 :time #(f13 s14 f14 s15 f15 s16 f16 s17)
+		 :time (vector f13 s14 f14 s15 f15 s16 f16 s17)
 		 :pre-reqs NIL
 		 :difficulty 100-level))
 
 (defconstant CS102 
     (make-course :name "cs102 - Computer Science II: Data Structures and Algorithms"
-		 :time #(f13 s14 f14 s15 f15 s16 f16 s17)
-		 :pre-reqs #(cs101)  
+		 :time (vector f13 s14 f14 s15 f15 s16 f16 s17)
+		 :pre-reqs (vector cs101)  
 		 :difficulty 100-level)) 
 
 (defconstant CS145
     (make-course :name "cs145 - Foundations of Computer Science"
-		 :time #(f13 s14 f14 s15 f15 s16 f16 s17)
-		 :pre-reqs #(cs101) 
+		 :time (vector f13 s14 f14 s15 f15 s16 f16 s17)
+		 :pre-reqs (vector cs101) 
 		 :difficulty 100-level))
 
 (defconstant CS203 
     (make-course :name "cs203 - Computer Science III: Software Design"
-		 :time #(f13 s14 f14 s15 f15 s16 f16 s17)
-		 :pre-reqs #(cs102)
+		 :time (vector f13 s14 f14 s15 f15 s16 f16 s17)
+		 :pre-reqs (vector cs102)
 		 :difficulty 200-level))
 
 (defconstant CS224
     (make-course :name "cs224 - Computer Organization"
-		 :time #(s14 f14 s15 f15 s16 f16 s17)
-		 :pre-reqs #(cs102 cs145)
+		 :time (vector s14 f14 s15 f15 s16 f16 s17)
+		 :pre-reqs (vector cs102 cs145)
 		 :difficulty 200-level))
 
 (defconstant CS235
     (make-course :name "cs235 - Programming Languages"
-		 :time #(f14)
-		 :pre-reqs #(cs102 cs145)
+		 :time (vector f14)
+		 :pre-reqs (vector cs102 cs145)
 		 :difficulty 200-level))
 
 (defconstant CS240
     (make-course :name "cs240 - Language Theory and Computation"
-		 :time #(f13 f14 s15 f15 s16 f16 s17)
-		 :pre-reqs #(cs102 cs145)
+		 :time (vector f13 f14 s15 f15 s16 f16 s17)
+		 :pre-reqs (vector cs102 cs145)
 		 :difficulty 200-level))
 
 (defconstant CS241
     (make-course :name "cs241 - Analysis of Algorithms"
-		 :time #(f13 f14 s15 f15 s16 f16 s17)
-		 :pre-reqs #(cs102 cs145)
+		 :time (vector f13 f14 s15 f15 s16 f16 s17)
+		 :pre-reqs (vector cs102 cs145)
 		 :difficulty 200-level))
 
 
 (defconstant CS245
     (make-course :name "cs245 - Declarative Programming Models"
-		 :time #(s14 s16 f16)
-		 :pre-reqs #(cs102 cs145)
+		 :time (vector s14 s16 f16)
+		 :pre-reqs (vector cs102 cs145)
 		 :difficulty 200-level))
 
 (defconstant CS250
     (make-course :name "cs250 - Modeling, Simulation and Analysis"
-		:time #(s15 f15 f16)
-		:pre-reqs #(cs102)
-		:difficulty 200-level))
+		 :time (vector s15 f15 f16)
+		 :pre-reqs (vector cs102)
+		 :difficulty 200-level))
 
 
 (defconstant CS324
     (make-course :name "cs324 - Computer Architecture"
-		:time #(s15 s17)
-		:pre-reqs #(cs224)
-		:difficulty 300-level))
+		 :time (vector s15 s17)
+		 :pre-reqs (vector cs224)
+		 :difficulty 300-level))
 
 (defconstant CS331
     (make-course :name "cs331 - Compilers"
-		:time #(s14 s15 s16 s17)
-		:pre-reqs #(cs224 cs240)
-		:difficulty 300-level))
+		 :time (vector s14 s15 s16 s17)
+		 :pre-reqs (vector cs224 cs240)
+		 :difficulty 300-level))
 
 (defconstant CS334
     (make-course :name "cs334 - Operating Systems"
-		:time #(f13 f14 f15 s16 f16)
-		:pre-reqs #(cs203 cs224)
-		:difficulty 300-level))
+		 :time (vector f13 f14 f15 s16 f16)
+		 :pre-reqs (vector cs203 cs224)
+		 :difficulty 300-level))
 
 (defconstant CS353
     (make-course :name "cs353 - BioInformatics"
-		:time #(s14 s16)
-		:pre-reqs #(cs203)
-		:difficulty 300-level))
+		 :time (vector s14 s16)
+		 :pre-reqs (vector cs203)
+		 :difficulty 300-level))
 
 (defconstant CS365
     (make-course :name "cs365 - Artificial Intelligence"
-		:time #(f14 s17)
-		:pre-reqs #(cs145 cs203 cs245)
-		:difficulty 300-level))
+		 :time (vector f14 s17)
+		 :pre-reqs (vector cs145 cs203 cs245)
+		 :difficulty 300-level))
 
 (defconstant CS366
     (make-course :name "cs366 - Computational Linguistics"
-		:time #(s14 s16)
-		:pre-reqs #(cs240)
-		:difficulty 300-level))
+		 :time (vector s14 s16)
+		 :pre-reqs (vector cs240)
+		 :difficulty 300-level))
 
 (defconstant CS375
     (make-course :name "cs375 - Networks"
-		:time #(f13 f15)
-		:pre-reqs #(cs203)
-		:difficulty 300-level))
+		 :time (vector f13 f15)
+		 :pre-reqs (vector cs203)
+		 :difficulty 300-level))
 
 (defconstant CS376
     (make-course :name "cs376 - Computer Games: Design, Production and Critique"
-		:time #(f13 f15)
-		:pre-reqs #(cs203)
-		:difficulty 300-level))
+		 :time (vector f13 f15)
+		 :pre-reqs (vector cs203)
+		 :difficulty 300-level))
 
 (defconstant CS377
     (make-course :name "cs377- Parallel Programming"
-		:time #(s15 f16)
-		:pre-reqs #(cs203 cs224)
-		:difficulty 300-level))
+		 :time (vector s15 f16)
+		 :pre-reqs (vector cs203 cs224)
+		 :difficulty 300-level))
 
 (defconstant CS378
     (make-course :name "cs378 - Graphics"
-		:time #(f13 f15)
-		:pre-reqs #(cs203)
-		:difficulty 300-level))
+		 :time (vector f13 f15)
+		 :pre-reqs (vector cs203)
+		 :difficulty 300-level))
 
 (defconstant CS379
     (make-course :name "cs395- Computer Animation: Art, Science and Criticism"
-		:time #(f14 f16)
-		:pre-reqs #(cs203)
-		:difficulty 300-level))
+		 :time (vector f14 f16)
+		 :pre-reqs (vector cs203)
+		 :difficulty 300-level))
 
 
 ;; The computer science major 
@@ -187,15 +193,13 @@
 		:req-courses 
 		(make-array 9 
 			    :initial-contents
-			    '(CS101 CS102 CS145 CS203 CS224 
-			      CS240 CS241 CS331 CS334))
+			    (list CS101 CS102 CS145 CS203 CS224 
+				  CS240 CS241 CS331 CS334))
 		:non-req-courses
 		(make-array 12
 			    :initial-contents 
-			    '(CS235 CS245 CS250 CS324 CS353 CS365 
-			      CS366 CS375 CS376 CS377 CS378 CS379))
+			    (list CS235 CS245 CS250 CS324 CS353 CS365 
+				  CS366 CS375 CS376 CS377 CS378 CS379))
 		:req-clusters 
-		(make-array '(2 6) 
-			    :initial-contents 
-			    '((CS235 CS245 CS250 nil nil nil)
-			      (CS324 CS365 CS366 CS375 CS377 CS378)))))
+		(list (list CS235 CS245 CS250)
+		      (list CS324 CS365 CS366 CS375 CS377 CS378))))
